@@ -1,0 +1,127 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  lift-log-sam
+
+  Sample SAM Template for lift-log-sam
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 5
+
+Resources:
+  LiftLogAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,OPTIONS,POST,PUT,PATCH'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+
+  AddWorkoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/workout/post
+      Handler: app.handler
+      Runtime: python3.7
+      Role: arn:aws:iam::415227642804:role/lambda-vpc-role
+      Layers:
+        - !Ref LiftLogLayer
+      Events:
+        AddWorkout:
+          Type: Api 
+          Properties:
+            Path: /workout
+            Method: POST
+            RestApiId: !Ref LiftLogAPI
+
+  GetWorkoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/workout/get
+      Handler: app.handler
+      Runtime: python3.7
+      Role: arn:aws:iam::415227642804:role/lambda-vpc-role
+      Layers:
+        - !Ref LiftLogLayer
+      Events:
+        GetWorkout:
+          Type: Api 
+          Properties:
+            Path: /workout/{date}
+            Method: GET
+            RestApiId: !Ref LiftLogAPI
+
+  QueryWorkoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/workout/query
+      Handler: app.handler
+      Runtime: python3.7
+      Role: arn:aws:iam::415227642804:role/lambda-vpc-role
+      Layers:
+        - !Ref LiftLogLayer
+      Events:
+        GetWorkout:
+          Type: Api 
+          Properties:
+            Path: /workout/query
+            Method: POST
+            RestApiId: !Ref LiftLogAPI
+
+  CreateExerciseFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/exercise/post
+      Handler: app.handler
+      Runtime: python3.7
+      Role: arn:aws:iam::415227642804:role/lambda-vpc-role
+      Layers:
+        - !Ref LiftLogLayer
+      Events:
+        CreateExercise:
+          Type: Api 
+          Properties:
+            Path: /exercise
+            Method: POST
+            RestApiId: !Ref LiftLogAPI
+
+
+
+  LiftLogLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: LiftLogLayer
+      Description: layer with LiftLog helpers
+      ContentUri: layer/
+      # ContentUri: .aws-sam/build/LiftLogLayerDummy
+      CompatibleRuntimes:
+        - python3.7
+        - python3.6
+      LicenseInfo: 'MIT'
+      RetentionPolicy: Retain
+
+  #https://bryson3gps.wordpress.com/2018/12/06/trick-sam-into-building-your-lambda-layers/
+  # LiftLogLayerDummy:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     Runtime: python3.6
+  #     Runtime: python3.7
+  #     Runtime: python3.8
+  #     CodeUri: layer
+
+# Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  # HelloWorldApi:
+  #   Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+  #   Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  # HelloWorldFunction:
+  #   Description: "Hello World Lambda Function ARN"
+  #   Value: !GetAtt HelloWorldFunction.Arn
+  # HelloWorldFunctionIamRole:
+  #   Description: "Implicit IAM Role created for Hello World function"
+  #   Value: !GetAtt HelloWorldFunctionRole.Arn

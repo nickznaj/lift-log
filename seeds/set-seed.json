@@ -1,0 +1,47 @@
+[
+    {
+        "reps": 5,
+        "weight": 300,
+        "fk_set_exercise": 1,
+        "fk_set_link": 1,
+        "fk_set_workout": 5
+    },
+    {
+        "reps": 3,
+        "weight": 320,
+        "fk_set_exercise": 1,
+        "fk_set_link": 2,
+        "fk_set_workout": 5
+    },
+    {
+        "reps": 1,
+        "weight": 365,
+        "fk_set_exercise": 1,
+        "fk_set_link": 3,
+        "fk_set_workout": 2
+    },
+    {
+        "reps": 5,
+        "weight": 300,
+        "rpe": 8.5,
+        "fk_set_exercise": 2,
+        "fk_set_link": 4,
+        "fk_set_workout": 2
+    },
+    {
+        "reps": 3,
+        "weight": 320,
+        "rpe": 8.0,
+        "fk_set_exercise": 2,
+        "fk_set_link": 5,
+        "fk_set_workout": 3
+    },
+    {
+        "reps": 1,
+        "weight": 365,
+        "fk_set_exercise": 2,
+        "fk_set_link": 6,
+        "fk_set_workout": 3
+    }
+]
+

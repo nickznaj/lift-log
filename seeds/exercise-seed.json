@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Barbell Squat",
+        "body_part": "legs"
+    },
+    {
+        "name": "Barbell Bench Press",
+        "body_part": "chest"
+    },
+    {
+        "name": "Barbell Deadlift",
+        "body_part": "back"
+    },
+    {
+        "name": "Overhead Press",
+        "body_part": "shoulders"
+    },
+    {
+        "name": "Stiff Legged Deadlift",
+        "body_part": "legs"
+    }
+]

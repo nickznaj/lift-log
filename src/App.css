@@ -1,0 +1,25 @@
+
+body {
+  text-align: center;
+  background: #ACF5BD;
+  position: absolute;
+  display: block;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  font-size: 24px;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+ul{
+  list-style-type: none;
+  padding: 0px;
+}
+
+  /* unvisited link */
+a:link , a:visited{
+  color: black;
+  text-decoration: none;
+}
+
