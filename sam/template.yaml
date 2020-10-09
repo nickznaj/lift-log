@@ -5,10 +5,20 @@ Description: >
 
   Sample SAM Template for lift-log-sam
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Parameters:
+  LiftLogDbPw:
+    Type: String
+  LiftLogDbUser:
+    Type: String
+    Default: nickznaj
+
 Globals:
   Function:
     Timeout: 5
+    Environment:
+      Variables:
+        - LIFTLOG_DB_PW: !Ref LiftLogDbPw
+        - LIFTLOG_DB_PW: !Ref LiftLogDbUser
 
 Resources:
   LiftLogAPI:

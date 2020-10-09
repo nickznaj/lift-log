@@ -8,6 +8,8 @@ STAGE=$1
 SERVICE="lift-log-api"
 BUCKET="lift-log"
 REGION="us-east-1"
+USER=$LIFTLOG_DB_USER
+PASSWORD=$LIFTLOG_DB_PW
 
 
 echo
@@ -25,4 +27,6 @@ aws cloudformation deploy  \
     --region ${REGION} \
     --template-file packaged-template.yml \
     --stack-name ${SERVICE} \
-    --capabilities CAPABILITY_NAMED_IAM
+    --capabilities CAPABILITY_NAMED_IAM \
+    --parameter-override LiftLogDbPw=${PASSWORD} \
+    LiftLogDbUser=${USER}
