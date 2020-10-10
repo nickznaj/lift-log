@@ -6,7 +6,7 @@ import datetime
 from liftlog import pymysql
 from liftlog.pymysql.constants import CLIENT
 from liftlog.custom_encoder import CustomEncoder
-from sql_queries import *
+from .sql_queries import *
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -95,10 +95,7 @@ def fetch_workout_for_date(date):
     sql = FETCH_WORKOUT.replace("{WHERE}", 'where workout.date = "{}"').format(date)
     rows = do_sql(sql)
 
-    if len(rows) == 1:
-        return rows[0]
-    else:
-        return None
+    return compile_workout(rows)[date]
     
 
 def fetch_workouts_for_date_range(start, end):
