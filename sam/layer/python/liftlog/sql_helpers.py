@@ -6,6 +6,7 @@ import datetime
 from liftlog import pymysql
 from liftlog.pymysql.constants import CLIENT
 from liftlog.custom_encoder import CustomEncoder
+from .templates import set_template, workout_template
 from .sql_queries import *
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -55,38 +56,49 @@ def write_sql(sql):
     return cur.lastrowid
 
 
+# convert datetimes and Decimals into serializable values
 def sanitize_rows(rows):
     return json.loads(
         json.dumps(
             rows, cls=CustomEncoder
             )
         )
-    
+
+
+# remove None values from SQL rows
+def remove_nones(row):
+    return {
+        k:v for (k,v) in row.items() if v
+    }
+
 
 # take in sql rows and compile into frontend friendly payload
 def compile_workout(rows):
     result = {}
     for row in rows:
+        row = remove_nones(row)
         curr_date = row['date']
         
-        # initialize workout entry
+        # initialize workout entry for date
         if not result.get(curr_date, False):
-            result[curr_date] = {
-                'id': row['id'],
-                'date': curr_date,
-                'workout_notes': row['workout_notes'],
-                'workout_coach_notes': row['workout_coach_notes'],
-                'sets': [] 
-            }
-        
-        # remove already used keys from the row
-        for k in ['date','workout_notes','workout_coach_notes','id']:
-            row.pop(k, None)
-    
+            workout = {'sets': []}
+            for k in workout_template.keys():
+                if row.get(k, False):
+                    workout[k] = row[k]
+            result[curr_date] = workout
+
         workout = result[curr_date] 
     
-        # the remaining keys are all from set and exercise tables.
-        workout['sets'].append(row)
+        # all remaining keys belong in the frontend set representation
+        # get non-null values from row
+        sset = {}
+        for k in set_template.keys():
+            if row.get(k, False):
+                sset[k] = row[k]
+
+        # if sset empty, then workout has no associated sets.
+        if len(sset.keys()) > 0:
+            workout['sets'].append(sset)
     
     return result
     
@@ -95,7 +107,7 @@ def fetch_workout_for_date(date):
     sql = FETCH_WORKOUT.replace("{WHERE}", 'where workout.date = "{}"').format(date)
     rows = do_sql(sql)
 
-    return compile_workout(rows)[date]
+    return compile_workout(rows).get(date, None)
     
 
 def fetch_workouts_for_date_range(start, end):
