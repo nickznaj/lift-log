@@ -139,13 +139,35 @@ def add_set(sset, return_sql=False):
 	    coach_notes = sset.get("set_coach_notes", None),
 	    set_notes= sset.get("set_notes", None)
     )
+
+    # if adding a single set
+    if sset.get('link_id'):
+        sql = "SET @link_id = {};\n".format(sset.get('link_id'))
+    if sset.get('workout_id'):
+        sql = "SET @workout_id = {};\n".format(sset.get('workout_id'))
+    
     
     if return_sql:
         return sql
     
     set_id = write_sql(sql)
-    print('setid', set_id)
+    return set_id
 
+def update_set(sset):
+    sql = UPDATE_SET.format(
+        reps= sset.get("reps"),
+	    weight= sset.get("weight"),
+	    rpe= sset.get("rpe", None),
+	    exercise_id= sset.get("exercise_id"),
+	    link_id= sset.get("link_id", None),
+	    workout_id= sset.get("workout_id"),
+	    coach_notes = sset.get("set_coach_notes", None),
+	    set_notes= sset.get("set_notes", None),
+	    id= sset.get("id", None)
+    )
+
+    set_id = write_sql(sql)
+    return set_id
 
 # put together a sql transaction to write the whole workout to DB.
 # start with the workout entry, then any dependent child rows.

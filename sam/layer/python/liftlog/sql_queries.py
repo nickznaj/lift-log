@@ -76,6 +76,20 @@ ADD_SET = """
 	    "{set_notes}");
 """
 
+UPDATE_SET = """
+    UPDATE `log_lift`.`set`
+    SET
+    `reps` = {reps} 
+    `weight` = {weight} 
+    `rpe` = {rpe} 
+    `fk_set_exercise` = {exercise_id} 
+    `fk_set_link` = {link_id} 
+    `fk_set_workout` = {workout_id} 
+    `set_coach_notes` = {coach_notes} 
+    `set_notes` = {set_notes} 
+    WHERE `id` = {id};
+"""
+
 
 ADD_LINK = """
 	INSERT INTO `log_lift`.`link`

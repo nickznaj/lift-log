@@ -2,37 +2,34 @@
     "date": "2020-10-01",
     "id": 12,
     "workout_notes": "paragraphs of brilliant insight",
-    "coach_notes": "you're a fucking catback idiot",
+    "coach_notes": "please do better",
     "sets": [
         {   
             "id": 73,
             "exercise": "barbell squat",
             "reps": 12,
             "weight": 300,
-            "set_notes": "i'm the fucking king, bro",
+            "set_notes": "these were hard",
             "set_coach_notes": "i'm the fucking king, bro",
             "rpe": 12,
-            "link": "https://photos.google.com/thebestofthebestbaaybeeee"
+            "link": "https://photos.google.com/5678"
         },
         {   
             "id": 73,
             "exercise": "barbell squat",
             "reps": 12,
             "weight": 300,
-            "set_notes": "i'm the fucking king, bro",
-            "set_coach_notes": "i'm the fucking king, bro",
-            "rpe": 12,
-            "link": "https://photos.google.com/thebestofthebestbaybeeeee"
+            "set_coach_notes": "great work good job",
+            "rpe": 12
         },
         {   
             "id": 73,
-            "exercise": "barbell squat",
+            "exercise": "barbell bench press",
             "reps": 12,
             "weight": 300,
-            "set_notes": "i'm the fucking king, bro",
-            "set_coach_notes": "i'm the fucking king, bro",
+            "set_notes": "easy work",
             "rpe": 12,
-            "link": "https://photos.google.com/thebestofthebestbaybeeeeee"
+            "link": "https://photos.google.com/1234"
         }
     ]
 }

@@ -33,7 +33,7 @@ Resources:
   AddWorkoutFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambdas/workout/post
+      CodeUri: lambdas/workout/POST
       Handler: app.handler
       Runtime: python3.7
       Role: arn:aws:iam::415227642804:role/lambda-vpc-role
@@ -50,7 +50,7 @@ Resources:
   GetWorkoutFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambdas/workout/get
+      CodeUri: lambdas/workout/GET
       Handler: app.handler
       Runtime: python3.7
       Role: arn:aws:iam::415227642804:role/lambda-vpc-role
@@ -74,17 +74,51 @@ Resources:
       Layers:
         - !Ref LiftLogLayer
       Events:
-        GetWorkout:
+        QueryWorkout:
           Type: Api 
           Properties:
             Path: /workout/query
             Method: POST
             RestApiId: !Ref LiftLogAPI
 
+  AddSetToWorkoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/workout/set/POST
+      Handler: app.handler
+      Runtime: python3.7
+      Role: arn:aws:iam::415227642804:role/lambda-vpc-role
+      Layers:
+        - !Ref LiftLogLayer
+      Events:
+        AddSetToWorkout:
+          Type: Api 
+          Properties:
+            Path: /workout/{workout_id}/set
+            Method: POST
+            RestApiId: !Ref LiftLogAPI
+
+  UpdateSetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/workout/set/POST
+      Handler: app.handler
+      Runtime: python3.7
+      Role: arn:aws:iam::415227642804:role/lambda-vpc-role
+      Layers:
+        - !Ref LiftLogLayer
+      Events:
+        UpdateSet:
+          Type: Api 
+          Properties:
+            Path: /workout/{workout_id}/set/{set_id}
+            Method: PUT
+            RestApiId: !Ref LiftLogAPI
+    
   CreateExerciseFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambdas/exercise/post
+      CodeUri: lambdas/exercise/POST
       Handler: app.handler
       Runtime: python3.7
       Role: arn:aws:iam::415227642804:role/lambda-vpc-role
