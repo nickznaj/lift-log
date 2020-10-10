@@ -10,15 +10,14 @@ Parameters:
     Type: String
   LiftLogDbUser:
     Type: String
-    Default: nickznaj
 
 Globals:
   Function:
     Timeout: 5
     Environment:
       Variables:
-        - LIFTLOG_DB_PW: !Ref LiftLogDbPw
-        - LIFTLOG_DB_PW: !Ref LiftLogDbUser
+        LIFTLOG_DB_PW: !Ref LiftLogDbPw
+        LIFTLOG_DB_USER: !Ref LiftLogDbUser
 
 Resources:
   LiftLogAPI:
@@ -94,7 +93,7 @@ Resources:
         AddSetToWorkout:
           Type: Api 
           Properties:
-            Path: /workout/{workout_id}/set
+            Path: /workout/set
             Method: POST
             RestApiId: !Ref LiftLogAPI
 
@@ -111,7 +110,7 @@ Resources:
         UpdateSet:
           Type: Api 
           Properties:
-            Path: /workout/{workout_id}/set/{set_id}
+            Path: /workout/set/{set_id}
             Method: PUT
             RestApiId: !Ref LiftLogAPI
     
