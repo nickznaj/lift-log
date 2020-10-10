@@ -3,7 +3,7 @@ from liftlog import pymysql
 from liftlog import sql_helpers
 from liftlog import sql_queries
     
-
+# adds a new set to an existing workout
 def handler(event, context, config=None): 
     # add_workout(test)
     sset = event['body']

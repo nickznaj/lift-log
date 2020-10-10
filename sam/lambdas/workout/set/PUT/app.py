@@ -4,6 +4,7 @@ from liftlog import sql_helpers
 from liftlog import sql_queries
     
 
+# modifies an existing set that belongs to a workout
 def handler(event, context, config=None): 
     # add_workout(test)
     sset = event['body']
