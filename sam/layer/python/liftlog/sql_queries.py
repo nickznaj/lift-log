@@ -8,12 +8,12 @@ FETCH_WORKOUT = """
                 `set`.reps,
                 `set`.weight,
                 `set`.rpe,
-                exercise.name,
+                exercise.name as exercise,
                 link.link
             from workout
-                inner join `set` on `workout`.`id` = `set`.`fk_set_workout`
-                inner join exercise on `set`.fk_set_exercise  = exercise.id
-                inner join link on `set`.fk_set_link = link.id
+                left join `set` on `workout`.`id` = `set`.`fk_set_workout`
+                left join exercise on `set`.fk_set_exercise  = exercise.id
+                left join link on `set`.fk_set_link = link.id
             {WHERE}
         """
         
