@@ -1,6 +1,6 @@
 import json
 
-from liftlog import sql_helpers
+from liftlog.sql_helpers import fetch_workout_for_date
 
 
 def handler(event, context, config=None): 
@@ -8,8 +8,6 @@ def handler(event, context, config=None):
     date = event['pathParameters']['date']
 
     workout = fetch_workout_for_date(date)
-
-    
 
     return {
         "statusCode": 200,
