@@ -1,20 +1,11 @@
 import json
 import sys
-from liftlog.pymysql.err import IntegrityError
 from liftlog.sql_helpers import add_exercise
+from liftlog.error_wrapper import error_wrapper
 
+@error_wrapper
 def handler(event, context, config=None): 
-    exercise = json.loads(event['body'])
+    exercise = event['body']
+    exercise_id = add_exercise(exercise)
 
-    try:
-        add_exercise(exercise)
-    except IntegrityError as e:
-        print(e.args)
-        return {
-            "statusCode": 422,
-            "body": json.dumps(e.args[1])
-        }
-
-    return {
-        "statusCode": 200
-    }
+    return exercise_id
