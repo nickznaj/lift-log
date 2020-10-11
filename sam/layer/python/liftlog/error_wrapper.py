@@ -1,4 +1,4 @@
-from liftlog.pymysql.err import IntegrityError
+from liftlog.pymysql.err import IntegrityError, ProgrammingError
 from liftlog.cors import access_control_headers
 from functools import wraps
 import traceback
@@ -6,7 +6,8 @@ import json
 
 errors = (
     IntegrityError, 
-    KeyError
+    KeyError,
+    ProgrammingError
 )
 
 # turns any body from a string to a dict
