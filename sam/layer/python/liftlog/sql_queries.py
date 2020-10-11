@@ -83,8 +83,8 @@ UPDATE_SET = """
         `fk_set_exercise` = {exercise_id},
         `fk_set_link` = {link_id},
         `fk_set_workout` = {workout_id},
-        `set_coach_notes` = {set_coach_notes},
-        `set_notes` = {set_notes} 
+        `set_coach_notes` = "{set_coach_notes}",
+        `set_notes` = "{set_notes}" 
     WHERE `id` = {id};
 """
 
