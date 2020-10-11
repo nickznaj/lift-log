@@ -8,7 +8,8 @@ from liftlog import pymysql
 from liftlog.pymysql.constants import CLIENT
 from liftlog.custom_encoder import CustomEncoder
 from .templates import set_template, workout_template, set_insert_keys
-from liftlog.pymysql.err import ProgrammingError
+from liftlog.pymysql.err import ProgrammingError, IntegrityError
+from liftlog.pymysql import Error
 
 from .sql_queries import *
 logger = logging.getLogger()
@@ -23,13 +24,14 @@ DB_NAME = "log_lift"
 # connect to mysql DB
 if not conn:
     try:
+        cursor = pymysql.cursors.DictCursor
         conn = pymysql.connect(
             DB_HOST, 
             user=DB_USER,
             passwd=DB_PASSWORD, 
             db=DB_NAME, 
             connect_timeout=5, 
-            cursorclass=pymysql.cursors.DictCursor,
+            cursorclass=cursor,
             client_flag=CLIENT.MULTI_STATEMENTS
         )
         print('connected to RDS')
@@ -52,20 +54,24 @@ def do_sql(query):
 
 
 def write_sql(sql, body=None):
-    print(sql)
-    print(body)
-    with conn.cursor() as cur:
-        try:
+    try:
+        with conn.cursor() as cur:
             if body:
                 print('writing with body')
                 sql = sql.format(**body)
                 cur.execute(sql)
             else:
+                print('writing with no body')
                 cur.execute(sql)
-        except ProgrammingError:
-            print('Problematic SQL: ')
-            print(cur._last_executed)
-            raise
+    except ProgrammingError:
+        print('Problematic SQL: ')
+        print(cur._last_executed)
+        raise
+    except IntegrityError:
+        print('Row already exists')
+        print(cur._last_executed)
+        raise
+        
     res = conn.commit()
     return cur.lastrowid
 
@@ -123,14 +129,14 @@ def compile_workout(rows):
                 sset[k] = row[k]
 
         # if sset empty, then workout has no associated sets.
-        if sset == {}:
+        if sset != {}:
             workout['sets'].append(sset)
     
     return result
     
 
 def fetch_workout_for_date(date):
-    sql = FETCH_WORKOUT.replace("{WHERE}", 'where workout.date = "{}"').format(date)
+    sql = FETCH_WORKOUT.replace("{WHERE}", 'WHERE workout.date = "{}"').format(date)
     rows = do_sql(sql)
 
     return compile_workout(rows).get(date, None)
@@ -138,14 +144,12 @@ def fetch_workout_for_date(date):
 
 def fetch_workouts_for_date_range(start, end):
     sql = FETCH_WORKOUT.replace("{WHERE}", 
-        'where workout.date >= "{}" and workout.date <= "{}"').format(
+        'WHERE workout.date >= "{}" and workout.date <= "{}"').format(
             start, end)
     
     query_result = do_sql(sql)
     
-    print(
-        json.dumps(compile_workout(query_result), indent=2)
-    )
+    return compile_workout(query_result)
     # json.loads(CustomEncoder().encode(test))
     
 
