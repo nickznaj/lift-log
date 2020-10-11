@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import json
 import logging
@@ -6,7 +7,7 @@ import datetime
 from liftlog import pymysql
 from liftlog.pymysql.constants import CLIENT
 from liftlog.custom_encoder import CustomEncoder
-from .templates import set_template, workout_template
+from .templates import set_template, workout_template, set_insert_keys
 from .sql_queries import *
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -48,13 +49,28 @@ def do_sql(query):
     return sanitize_rows(result)
 
 
-def write_sql(sql):
+def write_sql(sql, body=None):
     print(sql)
     with conn.cursor() as cur:
-        cur.execute(sql)
+        if body:
+            print('writing with body')
+            sql = sql.format(**body)
+            cur.execute(sql)
+        else:
+            cur.execute(sql)
     res = conn.commit()
     return cur.lastrowid
 
+# take something about to be written to the db and based on its template,
+# replace all necessary values in the sql query with its corresponding value, 
+# or NULL if missing an optional field
+def replace_null_sql_values(sql, obj):
+    required_keys = re.findall(r"(\"?\{([A-Za-z_]+)\}\"?)", sql)
+    for match, set_key in required_keys:
+        if not obj.get(set_key, False):
+            sql = sql.replace(match, "NULL" )
+
+    return sql
 
 # convert datetimes and Decimals into serializable values
 def sanitize_rows(rows):
@@ -137,30 +153,24 @@ def fetch_exercise(name="Barbell Squat"):
     
 
 # def add_set(workout_id, link_id):
-def add_set(sset, return_sql=False):
-    sql = ADD_SET.format(
-        reps= sset.get("reps"),
-	    weight= sset.get("weight"),
-	    rpe= sset.get("rpe", None),
-	    exercise_id= sset.get("exercise_id"),
-	   # link_id= sset.get("link_id", None),
-	   # workout_id= sset.get("workout_id"),
-	    coach_notes = sset.get("set_coach_notes", None),
-	    set_notes= sset.get("set_notes", None)
-    )
+def add_set(sset, adding_one=False, return_sql=False):
+    sql = replace_null_sql_values(ADD_SET, sset)
 
     # if adding a single set
-    if sset.get('link_id'):
-        sql = "SET @link_id = {};\n".format(sset.get('link_id'))
-    if sset.get('workout_id'):
-        sql = "SET @workout_id = {};\n".format(sset.get('workout_id'))
-    
-    
+    if adding_one:
+        if sset.get('link_id'):
+            sql = "SET @link_id = {};\n".format(sset.get('link_id')) + sql
+        else:
+            sql= sql.replace('@link_id', "NULL")
+        if sset.get('workout_id'):
+            sql= sql.replace('@workout_id', "{workout_id}")
+        
     if return_sql:
         return sql
     
-    set_id = write_sql(sql)
+    set_id = write_sql(sql, sset)
     return set_id
+
 
 def update_set(sset):
     sql = UPDATE_SET.format(
@@ -178,66 +188,30 @@ def update_set(sset):
     set_id = write_sql(sql)
     return set_id
 
-# put together a sql transaction to write the whole workout to DB.
-# start with the workout entry, then any dependent child rows.
-def add_workout(workout):
-    sql = ADD_WORKOUT.format(
-        date = workout['date'], 
-        workout_notes = workout.get('workout_notes', None)
-    )
-    
-    sql = "START TRANSACTION;\n" + sql
-    
-    # workout_id = write_sql(sql)
-    
-    # add each set to the db with needed foreign keys
-    for idx, sset in enumerate(workout['sets']):
-        exercise_id = fetch_exercise(sset['exercise'])['id']
-        sset['exercise_id'] = exercise_id
-        
-        link_id = None
-        if sset.get('link'):
-            link_id = "@link_id" + str(idx)
-            link_sql = add_link(sset.get('link', None), return_sql = True)
-            link_sql = link_sql.replace('@link_id', link_id)
-            sql += link_sql + "\n"
-        
-        set_sql = add_set(sset, return_sql=True)
-        set_sql = set_sql.replace('@link_id', link_id)
-        sql += set_sql + "\n" 
-    
-    sql += "\nCOMMIT;"
-    write_sql(sql)
-
 
 def add_link(link_url, return_sql=False):
     if not link_url:
         return None
-    
-    sql = ADD_LINK.format(
-        link = link_url    
-    )
+
+    link = {"link": link_url}
+    sql = replace_null_sql_values(ADD_LINK, link)
     
     if return_sql:
         return sql
     
-    link_id = write_sql(sql)
+    link_id = write_sql(sql, link)
     
-    print(link_id)
     return link_id
     
 
 def add_exercise(exercise):
-    sql = ADD_EXERCISE.format(
-        name = exercise.get('name'),
-        body_part = exercise.get('body_part')
-    )
+    sql = replace_null_sql_values(ADD_EXERCISE, exercise)
+
+    exercise_id = write_sql(sql, exercise)
     
-    exercise_id = write_sql(sql)
     return exercise_id
     
 
 # TODO:
-# add an add exercise function
-# somehow create an update function
+
 
