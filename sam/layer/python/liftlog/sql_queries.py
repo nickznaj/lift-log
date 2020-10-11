@@ -1,20 +1,22 @@
 FETCH_WORKOUT = """
-            SELECT 
-                workout.id,
-                workout.workout_notes,
-                workout.workout_coach_notes,
-                workout.date,
-                `set`.id as set_id,
-                `set`.reps,
-                `set`.weight,
-                `set`.rpe,
-                exercise.name as exercise,
-                link.link
-            FROM workout
-                left join `set` on `workout`.`id` = `set`.`fk_set_workout`
-                left join exercise on `set`.fk_set_exercise  = exercise.id
-                left join link on `set`.fk_set_link = link.id
-            {WHERE}
+    SELECT 
+        workout.id,
+        workout.workout_notes,
+        workout.workout_coach_notes,
+        workout.date,
+        `set`.id as set_id,
+        `set`.reps,
+        `set`.weight,
+        `set`.rpe,
+        `set`.set_notes,
+        `set`.set_coach_notes,
+        exercise.name as exercise,
+        link.link
+    FROM workout
+        left join `set` on `workout`.`id` = `set`.`fk_set_workout`
+        left join exercise on `set`.fk_set_exercise  = exercise.id
+        left join link on `set`.fk_set_link = link.id
+    {WHERE}
         """
         
 
@@ -43,8 +45,9 @@ FETCH_EXERCISE = """
 ADD_WORKOUT = """
     INSERT INTO `log_lift`.`workout`
     SET
-        `date` = {date},
-        `workout_notes` = {workout_notes}
+        `date` = "{date}",
+        `workout_notes` = "{workout_notes}"
+    ;
     
     SELECT LAST_INSERT_ID() INTO @workout_id;
 """
@@ -60,8 +63,9 @@ UPDATE_WORKOUT = """
 ADD_EXERCISE = """
     INSERT INTO `log_lift`.`exercise`
     SET
-        `name` = {name}
-        `body_part` = {body_part}
+        `name` = "{name}",
+        `body_part` = "{body_part}"
+    ;
     
     SELECT LAST_INSERT_ID() INTO @exercise_id;
 """
