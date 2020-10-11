@@ -95,6 +95,7 @@ def remove_nones(row):
 
 
 # take in sql rows and compile into frontend friendly payload
+# organized by date
 def compile_workout(rows):
     result = {}
     for row in rows:
@@ -107,6 +108,7 @@ def compile_workout(rows):
             for k in workout_template.keys():
                 if row.get(k, False):
                     workout[k] = row[k]
+                    row.pop(k)
             result[curr_date] = workout
 
         workout = result[curr_date] 
@@ -114,12 +116,12 @@ def compile_workout(rows):
         # all remaining keys belong in the frontend set representation
         # get non-null values from row
         sset = {}
-        for k in set_template.keys():
-            if row.get(k, False):
+        for k in row.keys():
+            if k not in workout_template:
                 sset[k] = row[k]
 
         # if sset empty, then workout has no associated sets.
-        if len(sset.keys()) > 0:
+        if sset == {}:
             workout['sets'].append(sset)
     
     return result
