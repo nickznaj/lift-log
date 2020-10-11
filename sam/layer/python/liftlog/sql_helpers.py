@@ -148,14 +148,14 @@ def fetch_workouts_for_date_range(start, end):
     
 
 def fetch_all_sets_for_exercise(exercise):
-    sql = FETCH_SETS.replace("{NAME}", exercise)
+    sql = FETCH_SETS.replace("{name}", exercise)
     query_result = do_sql(sql)
     
     print(query_result)
     
     
 def fetch_exercise(name="Barbell Squat"):
-    sql = FETCH_EXERCISE.format(NAME = name)
+    sql = FETCH_EXERCISE.format(name = name)
     
     return do_sql(sql)[0]
     
