@@ -1,21 +1,20 @@
 import json
 from liftlog import pymysql
-from liftlog import sql_helpers
-from liftlog import sql_queries
+from liftlog.sql_helpers import update_set, fetch_exercise
+from liftlog.error_wrapper import error_wrapper
     
-
 # modifies an existing set that belongs to a workout
+@error_wrapper
 def handler(event, context, config=None): 
-    # add_workout(test)
     sset = event['body']
     workout_id = event['pathParameters']['workout_id']
     set_id = event['pathParameters']['set_id']
+    exercise_id = fetch_exercise(sset['exercise'])['id']
 
-    sset['set_id'] = set_id
+    sset['id'] = set_id
     sset['workout_id'] = workout_id
+    sset['exercise_id'] = exercise_id
 
-    update_set(sset)
+    sql = update_set(sset, return_sql=False)
 
-    return {
-        "statusCode": 200
-    }
+    return sql
