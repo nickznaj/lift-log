@@ -47,6 +47,24 @@ Resources:
             Method: POST
             RestApiId: !Ref LiftLogAPI
 
+        
+  UpdateWorkoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/workout/PUT
+      Handler: app.handler
+      Runtime: python3.7
+      Role: arn:aws:iam::415227642804:role/lambda-vpc-role
+      Layers:
+        - !Ref LiftLogLayer
+      Events:
+        UpdateWorkout:
+          Type: Api 
+          Properties:
+            Path: /workout/{workout_id}
+            Method: PUT
+            RestApiId: !Ref LiftLogAPI
+
 
   QueryWorkoutFunction:
     Type: AWS::Serverless::Function
@@ -87,7 +105,7 @@ Resources:
   UpdateSetFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambdas/workout/set/POST
+      CodeUri: lambdas/workout/set/PUT
       Handler: app.handler
       Runtime: python3.7
       Role: arn:aws:iam::415227642804:role/lambda-vpc-role
