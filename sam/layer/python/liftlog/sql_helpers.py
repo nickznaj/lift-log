@@ -180,20 +180,12 @@ def add_set(sset, adding_one=False, return_sql=False):
     return set_id
 
 
-def update_set(sset):
-    sql = UPDATE_SET.format(
-        reps= sset.get("reps"),
-	    weight= sset.get("weight"),
-	    rpe= sset.get("rpe", None),
-	    exercise_id= sset.get("exercise_id"),
-	    link_id= sset.get("link_id", None),
-	    workout_id= sset.get("workout_id"),
-	    coach_notes = sset.get("set_coach_notes", None),
-	    set_notes= sset.get("set_notes", None),
-	    id= sset.get("id", None)
-    )
+def update_set(sset, return_sql=False):
+    sql = replace_null_sql_values(UPDATE_SET, sset)
 
-    set_id = write_sql(sql)
+    if return_sql:
+        return sql
+    set_id = write_sql(sql, sset)
     return set_id
 
 
