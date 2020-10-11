@@ -8,6 +8,8 @@ from liftlog import pymysql
 from liftlog.pymysql.constants import CLIENT
 from liftlog.custom_encoder import CustomEncoder
 from .templates import set_template, workout_template, set_insert_keys
+from liftlog.pymysql.err import ProgrammingError
+
 from .sql_queries import *
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -54,12 +56,12 @@ def write_sql(sql, body=None):
     print(body)
     with conn.cursor() as cur:
         try:
-        if body:
-            print('writing with body')
-            sql = sql.format(**body)
-            cur.execute(sql)
-        else:
-            cur.execute(sql)
+            if body:
+                print('writing with body')
+                sql = sql.format(**body)
+                cur.execute(sql)
+            else:
+                cur.execute(sql)
         except ProgrammingError:
             print('Problematic SQL: ')
             print(cur._last_executed)
