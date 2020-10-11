@@ -1,27 +1,30 @@
 import json
-from liftlog import pymysql
-from liftlog import sql_helpers
-from liftlog import sql_queries
-    
+from liftlog.sql_queries import ADD_WORKOUT
+from liftlog.error_wrapper import error_wrapper
+from liftlog.sql_helpers import fetch_exercise, add_link, add_set, write_sql
 
+# creates one large SQL transaction for adding a workout, its sets, and the sets'
+# links
+@error_wrapper
 def handler(event, context, config=None): 
-    # add_workout(test)
-    workout = event['body']
+    workout = json.loads(event['body'])
 
     sql = ADD_WORKOUT.format(
         date = workout['date'], 
         workout_notes = workout.get('workout_notes', None)
     )
     
+    # start a transaction to ensure something gets written only if
+    # each step succeeds
     sql = "START TRANSACTION;\n" + sql
     
-    # add each set to the db with needed foreign keys
+    # form each set with the needed foreign keys
     for idx, sset in enumerate(workout['sets']):
         exercise_id = fetch_exercise(sset['exercise'])['id']
         sset['exercise_id'] = exercise_id
         
-        link_id = None
-        if sset.get('link'):
+        link_id = "NULL"
+        if sset.get('link', False):
             link_id = "@link_id" + str(idx)
             link_sql = add_link(sset.get('link', None), return_sql = True)
             link_sql = link_sql.replace('@link_id', link_id)
@@ -33,10 +36,9 @@ def handler(event, context, config=None):
         sql += set_sql + "\n" 
     
     sql += "\nCOMMIT;"
-    
-    # sql = "COMMIT;"
-    
+        
     write_sql(sql)
+
 
 
     return {
