@@ -51,13 +51,19 @@ def do_sql(query):
 
 def write_sql(sql, body=None):
     print(sql)
+    print(body)
     with conn.cursor() as cur:
+        try:
         if body:
             print('writing with body')
             sql = sql.format(**body)
             cur.execute(sql)
         else:
             cur.execute(sql)
+        except ProgrammingError:
+            print('Problematic SQL: ')
+            print(cur._last_executed)
+            raise
     res = conn.commit()
     return cur.lastrowid
 
