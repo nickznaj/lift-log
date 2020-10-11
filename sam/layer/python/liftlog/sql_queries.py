@@ -43,7 +43,7 @@ FETCH_EXERCISE = """
 ADD_WORKOUT = """
     INSERT INTO `log_lift`.`workout`
     SET
-        `date` = {date}
+        `date` = {date},
         `workout_notes` = {workout_notes}
     
     SELECT LAST_INSERT_ID() INTO @workout_id;
@@ -77,13 +77,13 @@ ADD_SET = """
 UPDATE_SET = """
     UPDATE `log_lift`.`set`
     SET
-        `reps` = {reps} 
-        `weight` = {weight} 
-        `rpe` = {rpe} 
-        `fk_set_exercise` = {exercise_id} 
-        `fk_set_link` = {link_id} 
-        `fk_set_workout` = {workout_id} 
-        `set_coach_notes` = {set_coach_notes} 
+        `reps` = {reps},
+        `weight` = {weight},
+        `rpe` = {rpe},
+        `fk_set_exercise` = {exercise_id},
+        `fk_set_link` = {link_id},
+        `fk_set_workout` = {workout_id},
+        `set_coach_notes` = {set_coach_notes},
         `set_notes` = {set_notes} 
     WHERE `id` = {id};
 """
