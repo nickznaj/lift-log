@@ -7,7 +7,6 @@ import datetime
 from liftlog import pymysql
 from liftlog.pymysql.constants import CLIENT
 from liftlog.custom_encoder import CustomEncoder
-from .templates import set_template, workout_template, set_insert_keys
 from liftlog.pymysql.err import ProgrammingError, IntegrityError
 from liftlog.pymysql import Error
 
@@ -75,16 +74,29 @@ def write_sql(sql, body=None):
     res = conn.commit()
     return cur.lastrowid
 
+
+def find_all_keys(sql, return_value=None):
+    required_keys = re.findall(r"(\"?\{([A-Za-z_]+)\}\"?)", sql)
+
+    if return_value == "keys":
+        return [k for (m, k) in required_keys]
+    elif return_value == "matches":
+        return [m for (m, k) in required_keys]
+    
+    return required_keys
+
+
 # take something about to be written to the db and based on its template,
 # replace all necessary values in the sql query with its corresponding value, 
 # or NULL if missing an optional field
 def replace_null_sql_values(sql, obj):
-    required_keys = re.findall(r"(\"?\{([A-Za-z_]+)\}\"?)", sql)
+    required_keys = find_all_keys(sql)
     for match, set_key in required_keys:
         if not obj.get(set_key, False):
             sql = sql.replace(match, "NULL" )
 
     return sql
+
 
 # convert datetimes and Decimals into serializable values
 def sanitize_rows(rows):
@@ -106,6 +118,8 @@ def remove_nones(row):
 # organized by date
 def compile_workout(rows):
     result = {}
+    workout_keys = ['id'] + find_all_keys(ADD_WORKOUT, return_value="keys")
+    print('wk', workout_keys)
     for row in rows:
         row = remove_nones(row)
         curr_date = row['date']
@@ -113,7 +127,7 @@ def compile_workout(rows):
         # initialize workout entry for date
         if not result.get(curr_date, False):
             workout = {'sets': []}
-            for k in workout_template.keys():
+            for k in workout_keys:
                 if row.get(k, False):
                     workout[k] = row[k]
                     row.pop(k)
@@ -125,7 +139,7 @@ def compile_workout(rows):
         # get non-null values from row
         sset = {}
         for k in row.keys():
-            if k not in workout_template:
+            if k not in workout_keys:
                 sset[k] = row[k]
 
         # if sset empty, then workout has no associated sets.
