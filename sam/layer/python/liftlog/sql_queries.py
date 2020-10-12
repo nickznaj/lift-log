@@ -46,7 +46,8 @@ ADD_WORKOUT = """
     INSERT INTO `log_lift`.`workout`
     SET
         `date` = "{date}",
-        `workout_notes` = "{workout_notes}"
+        `workout_notes` = "{workout_notes}",
+        `workout_coach_notes` = "{workout_coach_notes}"
     ;
     
     SELECT LAST_INSERT_ID() INTO @workout_id;
