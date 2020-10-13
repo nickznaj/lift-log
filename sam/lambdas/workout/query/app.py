@@ -1,28 +1,22 @@
 import json
 
-from liftlog.sql_helpers import fetch_workout_for_date, fetch_workouts_for_date_range
+from liftlog.sql_queries import FETCH_WORKOUT
 from liftlog.error_wrapper import error_wrapper
+from liftlog.sql_helpers import (
+    do_sql,
+    compile_workout,
+)
+from liftlog.query_converter import construct_where
 
 
 @error_wrapper
-def handler(event, context, config=None): 
-    query = event['body']
+def handler(event, context, config=None):
+    query = event["body"]
 
-    if 'date' in query:
-        date = query.get('date')
-        result = fetch_workout_for_date(date)
-    elif set(['start', 'end']).issubset(query.keys()):
-        start = query.get('start')
-        end = query.get('end')
-        result = fetch_workouts_for_date_range(start, end)
+    where = construct_where(query)
+    sql = FETCH_WORKOUT.format(WHERE=where)
 
-        
-
-# TODO: remove this by implementing custom error class
-    if not result:
-        return {
-            "statusCode": 404,
-            "body": "No workout(s) mathching query {}".format(event['body'])
-        }
+    rows = do_sql(sql)
+    result = compile_workout(rows)
 
     return result
