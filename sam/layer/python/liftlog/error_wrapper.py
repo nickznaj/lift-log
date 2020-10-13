@@ -4,11 +4,7 @@ from functools import wraps
 import traceback
 import json
 
-errors = (
-    IntegrityError, 
-    KeyError,
-    ProgrammingError
-)
+errors = (IntegrityError, KeyError, ProgrammingError)
 
 # turns any body from a string to a dict
 # runs the lambda, returning a 200 response with headers on success
@@ -16,22 +12,23 @@ errors = (
 def error_wrapper(fn):
     @wraps(fn)
     def wrapped(event, context):
-        body = event.get('body', None)
+        body = event.get("body", None)
         try:
             if isinstance(body, str):
-                event['body'] = json.loads(body)
+                event["body"] = json.loads(body)
             response = fn(event, context)
             return {
                 "statusCode": 200,
                 "body": json.dumps(response),
-                "headers": access_control_headers()
+                "headers": access_control_headers(),
             }
         except errors as e:
-            print('ERROR: ', repr(e))
+            print("ERROR: ", repr(e))
             traceback.print_exc(limit=5)
             return {
                 "statusCode": 422,
                 "body": repr(e),
-                "headers": access_control_headers()
+                "headers": access_control_headers(),
             }
+
     return wrapped

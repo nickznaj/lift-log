@@ -1,24 +1,35 @@
-FETCH_WORKOUT = """
-    SELECT 
-        workout.id,
-        workout.workout_notes,
-        workout.workout_coach_notes,
-        workout.date,
-        `set`.id as set_id,
-        `set`.reps,
-        `set`.weight,
-        `set`.rpe,
-        `set`.set_notes,
-        `set`.set_coach_notes,
-        exercise.name as exercise,
-        link.link
+from string import Template
+
+WORKOUT_KEYS = """
+    workout.id,
+    workout.workout_notes,
+    workout.workout_coach_notes,
+    workout.date,
+    link.link"""
+
+EXERCISE_KEYS = """
+    exercise.name as exercise,
+    exercise.body_part"""
+
+SET_KEYS = """
+    `set`.id as set_id,
+    `set`.reps,
+    `set`.weight,
+    `set`.rpe,
+    `set`.set_notes,
+    `set`.set_coach_notes"""
+
+FETCH_WORKOUT = Template(
+    """
+    SELECT $WORKOUT_KEYS, $SET_KEYS, $EXERCISE_KEYS
     FROM workout
         left join `set` on `workout`.`id` = `set`.`fk_set_workout`
         left join exercise on `set`.fk_set_exercise  = exercise.id
         left join link on `set`.fk_set_link = link.id
     {WHERE}
-        """
-        
+"""
+).substitute(WORKOUT_KEYS=WORKOUT_KEYS, SET_KEYS=SET_KEYS, EXERCISE_KEYS=EXERCISE_KEYS)
+
 
 FETCH_SETS = """
     SELECT 
@@ -108,4 +119,3 @@ ADD_LINK = """
 	;
     SELECT LAST_INSERT_ID() INTO @link_id;
 """
-

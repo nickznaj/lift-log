@@ -1,5 +1,9 @@
 {
     "python.pythonPath": "/home/linuxbrew/.linuxbrew/opt/python@3.7/bin/python3",
     "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true
+    "python.linting.enabled": true,
+    "python.formatting.provider": "black",
+    "python.autoComplete.extraPaths": [
+        "/home/nickznaj/code/lift-log/sam/layer/python/liftlog"
+    ]
 }
