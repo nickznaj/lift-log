@@ -75,6 +75,7 @@ def write_sql(sql, body=None):
     return cur.lastrowid
 
 
+# return all format()-able keys in a sql query
 def find_all_keys(sql, return_value=None):
     required_keys = re.findall(r"(\"?\{([A-Za-z_]+)\}\"?)", sql)
 
@@ -143,24 +144,7 @@ def compile_workout(rows):
     return result
 
 
-def fetch_workout_for_date(date):
-    sql = FETCH_WORKOUT.replace("{WHERE}", 'WHERE workout.date = "{}"').format(date)
-    rows = do_sql(sql)
-
-    return compile_workout(rows).get(date, None)
-
-
-def fetch_workouts_for_date_range(start, end):
-    sql = FETCH_WORKOUT.replace(
-        "{WHERE}", 'WHERE workout.date >= "{}" and workout.date <= "{}"'
-    ).format(start, end)
-
-    query_result = do_sql(sql)
-
-    return compile_workout(query_result)
-    # json.loads(CustomEncoder().encode(test))
-
-
+# TODO: Deprecate with expansion of QC features
 def fetch_all_sets_for_exercise(exercise):
     sql = FETCH_SETS.replace("{name}", exercise)
     query_result = do_sql(sql)
@@ -168,6 +152,7 @@ def fetch_all_sets_for_exercise(exercise):
     print(query_result)
 
 
+# TODO: Deprecate with expansion of QC features
 def fetch_exercise(name="Barbell Squat"):
     sql = FETCH_EXERCISE.format(name=name)
 
@@ -224,6 +209,3 @@ def add_exercise(exercise):
     exercise_id = write_sql(sql, exercise)
 
     return exercise_id
-
-
-# TODO:
