@@ -57,9 +57,9 @@ class QueryConverter:
             joined = ", ".join(items)
             return "IN ({})".format(joined)
         elif operator == "btwn":
-            return Template(
-                '{TABLE_COL} >= "$start" and {TABLE_COL} <= "$end"'
-            ).substitute(start=items[0], end=items[-1])
+            return Template(" BETWEEN '$min' AND '$max'").substitute(
+                min=items[0], max=items[-1]
+            )
 
     @staticmethod
     def format_dict(item, operator=None):
@@ -134,4 +134,5 @@ def construct_where(q):
             parts.append(" ".join([tbl_col, formatted_val]))
 
     result = "WHERE " + " AND ".join(parts)
+    result = result.replace("set", "`set`")  # unfortunate choice of table name
     return result
