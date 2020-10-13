@@ -6,7 +6,8 @@ PASSWORD=$LIFTLOG_DB_PW
 echo ${USER}
 echo ${USER}
 
-sam build --parameter-overrides 'LiftLogDbUser=${USER},LiftLogDbPw=${PASSWORD}'
+ttab -s nickznaj "sam local start-api --port 3333"
 
-sam local start-api --port 3333
+ttab -s nickznaj "nodemon --exec sam build --parameter-overrides 'LiftLogDbUser=${USER},LiftLogDbPw=${PASSWORD}'"
+
 
