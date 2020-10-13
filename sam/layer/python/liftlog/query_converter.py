@@ -29,19 +29,36 @@ from string import Template
 
 class QueryConverter:
     @staticmethod
-    def get_value_type(value):
-        value_type = type(value).__name__
-        return value_type
+    def sqlize(value, operator=None, tbl_col=None):
+        # tbl_only required when doing a 'btwn' query with a list
+        # TODO: remove this param
+        formatter = QueryConverter.get_formatter(value)
+        formatted_value = formatter(value, operator)
+
+        if not formatted_value:
+            raise ValueError(
+                "Operator {} not supported for type {}".format(
+                    operator, QueryConverter.get_value_type(value)
+                )
+            )
+
+        if tbl_col:
+            return formatted_value.format(TABLE_COL=tbl_col)
+        return formatted_value
 
     @staticmethod
-    def is_date(string):
-        try:
-            datetime.strptime(string, "%Y-%m-%d")
-            return True
-        except ValueError:
-            return False
-        except TypeError:
-            return False
+    def get_formatter(value):
+        val_type = QueryConverter.get_value_type(value)
+        if val_type == "list":
+            return QueryConverter.format_list
+        elif val_type == "dict":
+            return QueryConverter.format_dict
+        elif val_type in ["int", "float"]:
+            return QueryConverter.format_number
+        elif QueryConverter.is_date(value):
+            return QueryConverter.format_date
+        elif val_type == "str":
+            return QueryConverter.format_string
 
     @staticmethod
     def format_list(items, operator=None):
@@ -50,9 +67,6 @@ class QueryConverter:
 
         items = [formatter(i) for i in items]
 
-        # if operator == "=":
-        #     joined = ", ".join(items)
-        #     return "AND {FIX} ({})".format(joined)
         if operator == "or":
             joined = ", ".join(items)
             return "IN ({})".format(joined)
@@ -88,36 +102,19 @@ class QueryConverter:
         return " ".join([operator, stringified])
 
     @staticmethod
-    def get_formatter(value):
-        val_type = QueryConverter.get_value_type(value)
-        if val_type == "list":
-            return QueryConverter.format_list
-        elif val_type == "dict":
-            return QueryConverter.format_dict
-        elif val_type in ["int", "float"]:
-            return QueryConverter.format_number
-        elif QueryConverter.is_date(value):
-            return QueryConverter.format_date
-        elif val_type == "str":
-            return QueryConverter.format_string
+    def get_value_type(value):
+        value_type = type(value).__name__
+        return value_type
 
-    # tbl_only required when doing a 'btwn' query with a list
-    # TODO: remove this param
     @staticmethod
-    def sqlize(value, operator=None, tbl_col=None):
-        formatter = QueryConverter.get_formatter(value)
-        formatted_value = formatter(value, operator)
-
-        if not formatted_value:
-            raise ValueError(
-                "Operator {} not supported for type {}".format(
-                    operator, QueryConverter.get_value_type(value)
-                )
-            )
-
-        if tbl_col:
-            return formatted_value.format(TABLE_COL=tbl_col)
-        return formatted_value
+    def is_date(string):
+        try:
+            datetime.strptime(string, "%Y-%m-%d")
+            return True
+        except ValueError:
+            return False
+        except TypeError:
+            return False
 
 
 # constructs an sql WHERE statement from a provided query
